@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5UNITY - Server 844 Alliance Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00f5ff',
+                        secondary: '#ff00ff',
+                        accent: '#ff6b00',
+                        dark: '#0a0a0f',
+                        darker: '#050508',
+                        card: '#12121a',
+                        border: '#1a1a2e'
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #050508 0%, #0a0a0f 50%, #0d0d15 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #00f5ff, #ff00ff, #ff6b00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .neon-border {
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.1), inset 0 0 20px rgba(0, 245, 255, 0.05);
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.3), 0 0 60px rgba(255, 0, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00f5ff, #0099ff);
+            color: #000;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 245, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #00f5ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 14px 32px;
+            border: 2px solid #00f5ff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 245, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+        }
+
+        .input-field {
+            background: rgba(18, 18, 26, 0.8);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 4px;
+            padding: 14px 18px;
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #00f5ff;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .alliance-card {
+            background: linear-gradient(135deg, rgba(18, 18, 26, 0.9), rgba(26, 26, 46, 0.9));
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .alliance-card:hover, .alliance-card.selected {
+            border-color: #00f5ff;
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .alliance-card.selected {
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(0, 153, 255, 0.1));
+        }
+
+        .rank-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .rank-r1 { background: linear-gradient(135deg, #ff0000, #ff6b00); }
+        .rank-r2 { background: linear-gradient(135deg, #ff6b00, #ffcc00); }
+        .rank-r3 { background: linear-gradient(135deg, #ffcc00, #00ff00); }
+        .rank-r4 { background: linear-gradient(135deg, #00ff00, #00f5ff); }
+        .rank-r5 { background: linear-gradient(135deg, #00f5ff, #ff00ff); }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: #00f5ff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(18, 18, 26, 0.9), rgba(26, 26, 46, 0.9));
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #00f5ff;
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00f5ff, #ff00ff);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #00f5ff;
+        }
+
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 80%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #12121a, #1a1a2e);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #ff0000;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f5ff, #ff00ff);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .server-badge {
+            background: linear-gradient(135deg, #ff6b00, #ff00ff);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .hero-image {
+            background-image: url('https://image.qwenlm.ai/public_source/b56c8422-45ba-4a1b-89b3-1067733e9e92/14866cc5e-e2da-407b-92c9-c5fada53d101.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .hero-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(5,5,8,0.3) 0%, rgba(5,5,8,0.8) 100%);
+        }
+
+        .alliance-logos {
+            background-image: url('https://image.qwenlm.ai/public_source/b56c8422-45ba-4a1b-89b3-1067733e9e92/1a47aff1a-7cac-4273-b442-f847ea5681a2.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .dashboard-bg {
+            background-image: url('https://image.qwenlm.ai/public_source/b56c8422-45ba-4a1b-89b3-1067733e9e92/17b9b6a5d-f29c-436d-b880-cfc9dff72480.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .dashboard-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 8, 0.85);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #12121a, #1a1a2e);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 8px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-color: #00ff00;
+        }
+
+        .toast.error {
+            border-color: #ff0000;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 245, 255, 0.3);
+            border-top-color: #00f5ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300f5ff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
+            cursor: pointer;
+        }
+
+        select.input-field option {
+            background: #12121a;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles Background -->
+    <div id="particles"></div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toastIcon">✓</span>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-darker/90 backdrop-blur-md border-b border-border">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg neon-border flex items-center justify-center">
+                        <span class="font-orbitron font-bold text-primary text-xl">5</span>
+                    </div>
+                    <span class="font-orbitron font-bold text-2xl gradient-text">5UNITY</span>
+                    <span class="server-badge ml-2">Server 844</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8" id="navLinks">
+                    <a href="#" class="nav-link active" onclick="showPage('home')">Home</a>
+                    <a href="#" class="nav-link" onclick="showPage('alliances')">Alliances</a>
+                    <a href="#" class="nav-link" onclick="showPage('about')">About</a>
+                </div>
+                <div class="flex items-center gap-4" id="authButtons">
+                    <button class="btn-secondary" onclick="showPage('login')">Login</button>
+                    <button class="btn-primary" onclick="showPage('signup')">Sign Up</button>
+                </div>
+                <div class="hidden items-center gap-4" id="userMenu">
+                    <div class="text-right">
+                        <div class="font-rajdhani font-semibold" id="userName">Player</div>
+                        <div class="text-sm text-primary" id="userAlliance">ROTL</div>
+                    </div>
+                    <button class="btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="homePage" class="page active">
+        <!-- Hero Section -->
+        <section class="hero-image min-h-screen flex items-center justify-center relative">
+            <div class="max-w-7xl mx-auto px-6 py-32 text-center relative z-10">
+                <div class="fade-in">
+                    <h1 class="font-orbitron font-black text-5xl md:text-7xl lg:text-8xl mb-6">
+                        <span class="gradient-text">5UNITY</span>
+                    </h1>
+                    <p class="font-rajdhani text-xl md:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto">
+                        Server 844's Premier Alliance Hub for Doomsday: Last Survivors
+                    </p>
+                    <p class="font-rajdhani text-lg text-gray-400 mb-12">
+                        Unite with survivors. Choose your alliance. Dominate the wasteland.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button class="btn-primary" onclick="showPage('signup')">
+                            Join The Fight
+                        </button>
+                        <button class="btn-secondary" onclick="showPage('login')">
+                            Member Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+                <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-24 bg-darker">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="font-orbitron font-bold text-4xl mb-4">
+                        <span class="gradient-text">Why Join 5UNITY?</span>
+                    </h2>
+                    <p class="font-rajdhani text-xl text-gray-400 max-w-2xl mx-auto">
+                        The ultimate platform for Server 844 survivors to coordinate, communicate, and conquer.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="stat-card fade-in">
+                        <div class="w-16 h-16 rounded-xl neon-border flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl mb-3">5 Alliances</h3>
+                        <p class="text-gray-400">Choose from ROTL, COZY, S_S, N4SD, or VIP. Each with unique strengths and strategies.</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="w-16 h-16 rounded-xl neon-border flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl mb-3">Rank System</h3>
+                        <p class="text-gray-400">Track your progress from R1 to R5. Prove your worth and climb the ranks.</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="w-16 h-16 rounded-xl neon-border flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl mb-3">Secure Platform</h3>
+                        <p class="text-gray-400">Protected dashboard access. Your data and alliance info stays secure.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alliances Preview -->
+        <section class="py-24 bg-dark">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="font-orbitron font-bold text-4xl mb-4">
+                        <span class="gradient-text">Choose Your Alliance</span>
+                    </h2>
+                    <p class="font-rajdhani text-xl text-gray-400 max-w-2xl mx-auto">
+                        Five powerful alliances. One server. Which side will you fight for?
+                    </p>
+                </div>
+                <div class="alliance-logos h-96 mb-12"></div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="alliance-card">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-primary">R</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-xl">ROTL</h3>
+                        <p class="text-sm text-gray-400 mt-2">Rise of The Lost</p>
+                    </div>
+                    <div class="alliance-card">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-secondary">C</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-xl">COZY</h3>
+                        <p class="text-sm text-gray-400 mt-2">Cozy Survivors</p>
+                    </div>
+                    <div class="alliance-card">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-accent">S</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-xl">S_S</h3>
+                        <p class="text-sm text-gray-400 mt-2">Silent Shadows</p>
+                    </div>
+                    <div class="alliance-card">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-primary">N</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-xl">N4SD</h3>
+                        <p class="text-sm text-gray-400 mt-2">Never 4 Surrender</p>
+                    </div>
+                    <div class="alliance-card">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-secondary">V</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-xl">VIP</h3>
+                        <p class="text-sm text-gray-400 mt-2">Very Important Players</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 bg-darker border-t border-border">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-primary text-xl">5</span>
+                        </div>
+                        <span class="font-orbitron font-bold text-xl gradient-text">5UNITY</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">© 2024 5UNITY - Server 844. All rights reserved.</p>
+                    <div class="flex gap-6">
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors">Discord</a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors">Twitter</a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors">Support</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="page">
+        <div class="min-h-screen flex items-center justify-center px-6 py-20">
+            <div class="w-full max-w-md">
+                <div class="stat-card neon-glow fade-in">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-xl neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-primary text-4xl">5</span>
+                        </div>
+                        <h1 class="font-orbitron font-bold text-3xl mb-2">Welcome Back</h1>
+                        <p class="text-gray-400">Login to access your dashboard</p>
+                    </div>
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-primary">EMAIL / USERNAME</label>
+                                <input type="text" class="input-field" id="loginEmail" placeholder="Enter your email or username" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-primary">PASSWORD</label>
+                                <input type="password" class="input-field" id="loginPassword" placeholder="Enter your password" required>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" class="w-4 h-4 accent-primary">
+                                    <span class="text-sm text-gray-400">Remember me</span>
+                                </label>
+                                <a href="#" class="text-sm text-primary hover:underline">Forgot password?</a>
+                            </div>
+                            <button type="submit" class="btn-primary w-full">
+                                Login to Dashboard
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-8 text-center">
+                        <p class="text-gray-400">Don't have an account?</p>
+                        <button class="text-primary font-semibold mt-2 hover:underline" onclick="showPage('signup')">
+                            Sign Up Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Up Page -->
+    <div id="signupPage" class="page">
+        <div class="min-h-screen flex items-center justify-center px-6 py-20">
+            <div class="w-full max-w-2xl">
+                <div class="stat-card neon-glow fade-in">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-xl neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-primary text-4xl">5</span>
+                        </div>
+                        <h1 class="font-orbitron font-bold text-3xl mb-2">Join 5UNITY</h1>
+                        <p class="text-gray-400">Create your survivor profile for Server 844</p>
+                    </div>
+                    <form id="signupForm" onsubmit="handleSignup(event)">
+                        <div class="space-y-6">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2 text-primary">USERNAME</label>
+                                    <input type="text" class="input-field" id="signupUsername" placeholder="Choose a username" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2 text-primary">EMAIL</label>
+                                    <input type="email" class="input-field" id="signupEmail" placeholder="Enter your email" required>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2 text-primary">PASSWORD</label>
+                                    <input type="password" class="input-field" id="signupPassword" placeholder="Create a password" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2 text-primary">CONFIRM PASSWORD</label>
+                                    <input type="password" class="input-field" id="signupConfirmPassword" placeholder="Confirm your password" required>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-border pt-6">
+                                <h3 class="font-orbitron font-bold text-xl mb-4 text-center">
+                                    <span class="gradient-text">Game Information</span>
+                                </h3>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-primary">SELECT YOUR ALLIANCE</label>
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                                    <div class="alliance-card" onclick="selectAlliance('ROTL')" id="alliance-ROTL">
+                                        <span class="font-orbitron font-bold text-lg">ROTL</span>
+                                    </div>
+                                    <div class="alliance-card" onclick="selectAlliance('COZY')" id="alliance-COZY">
+                                        <span class="font-orbitron font-bold text-lg">COZY</span>
+                                    </div>
+                                    <div class="alliance-card" onclick="selectAlliance('S_S')" id="alliance-S_S">
+                                        <span class="font-orbitron font-bold text-lg">S_S</span>
+                                    </div>
+                                    <div class="alliance-card" onclick="selectAlliance('N4SD')" id="alliance-N4SD">
+                                        <span class="font-orbitron font-bold text-lg">N4SD</span>
+                                    </div>
+                                    <div class="alliance-card" onclick="selectAlliance('VIP')" id="alliance-VIP">
+                                        <span class="font-orbitron font-bold text-lg">VIP</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="selectedAlliance" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-primary">IN-GAME ID</label>
+                                <input type="text" class="input-field" id="gameId" placeholder="Enter your in-game ID" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-primary">YOUR RANK</label>
+                                <select class="input-field" id="playerRank" required>
+                                    <option value="">Select your rank</option>
+                                    <option value="R1">R1 - Recruit</option>
+                                    <option value="R2">R2 - Member</option>
+                                    <option value="R3">R3 - Veteran</option>
+                                    <option value="R4">R4 - Elite</option>
+                                    <option value="R5">R5 - Leader</option>
+                                </select>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" class="w-4 h-4 accent-primary" id="termsCheck" required>
+                                <label for="termsCheck" class="text-sm text-gray-400">
+                                    I agree to the <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn-primary w-full">
+                                Create Account
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-8 text-center">
+                        <p class="text-gray-400">Already have an account?</p>
+                        <button class="text-primary font-semibold mt-2 hover:underline" onclick="showPage('login')">
+                            Login Instead
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="page dashboard-bg min-h-screen">
+        <div class="relative z-10 pt-24 pb-12">
+            <div class="max-w-7xl mx-auto px-6">
+                <!-- Welcome Section -->
+                <div class="stat-card neon-glow mb-8 fade-in">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        <div>
+                            <h1 class="font-orbitron font-bold text-3xl mb-2">
+                                Welcome, <span class="gradient-text" id="dashUserName">Survivor</span>
+                            </h1>
+                            <p class="text-gray-400">Server 844 • <span id="dashAlliance" class="text-primary font-semibold">ROTL</span> • <span id="dashRank" class="rank-badge rank-r1">R1</span></p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="text-right">
+                                <div class="text-sm text-gray-400">In-Game ID</div>
+                                <div class="font-orbitron font-bold text-primary" id="dashGameId">---</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid md:grid-cols-4 gap-6 mb-8">
+                    <div class="stat-card fade-in">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg neon-border flex items-center justify-center">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Alliance Rank</div>
+                                <div class="font-orbitron font-bold text-2xl" id="statRank">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg neon-border flex items-center justify-center">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Alliance Members</div>
+                                <div class="font-orbitron font-bold text-2xl" id="statMembers">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg neon-border flex items-center justify-center">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Server Players</div>
+                                <div class="font-orbitron font-bold text-2xl">1,287</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg neon-border flex items-center justify-center">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Days Active</div>
+                                <div class="font-orbitron font-bold text-2xl" id="statDays">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alliance Info -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="stat-card fade-in">
+                        <h3 class="font-orbitron font-bold text-xl mb-6">Alliance Information</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b border-border">
+                                <span class="text-gray-400">Alliance Name</span>
+                                <span class="font-semibold" id="infoAlliance">--</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-border">
+                                <span class="text-gray-400">Your Rank</span>
+                                <span class="rank-badge" id="infoRank">--</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-border">
+                                <span class="text-gray-400">In-Game ID</span>
+                                <span class="font-orbitron" id="infoGameId">--</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-border">
+                                <span class="text-gray-400">Account Status</span>
+                                <span class="text-green-400 font-semibold">Active</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3">
+                                <span class="text-gray-400">Member Since</span>
+                                <span class="font-semibold" id="infoJoined">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card fade-in">
+                        <h3 class="font-orbitron font-bold text-xl mb-6">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button class="w-full p-4 rounded-lg neon-border flex items-center gap-4 hover:bg-primary/10 transition-colors">
+                                <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-semibold">Alliance Chat</div>
+                                    <div class="text-sm text-gray-400">Connect with your team</div>
+                                </div>
+                            </button>
+                            <button class="w-full p-4 rounded-lg neon-border flex items-center gap-4 hover:bg-primary/10 transition-colors">
+                                <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-semibold">View Stats</div>
+                                    <div class="text-sm text-gray-400">Track your progress</div>
+                                </div>
+                            </button>
+                            <button class="w-full p-4 rounded-lg neon-border flex items-center gap-4 hover:bg-primary/10 transition-colors">
+                                <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-semibold">Settings</div>
+                                    <div class="text-sm text-gray-400">Manage your account</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <div class="stat-card fade-in">
+                    <h3 class="font-orbitron font-bold text-xl mb-6">Recent Activity</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-4 rounded-lg bg-dark/50">
+                            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-semibold">Account Created Successfully</div>
+                                <div class="text-sm text-gray-400">Welcome to 5UNITY, Survivor!</div>
+                            </div>
+                            <div class="text-sm text-gray-400">Just now</div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 rounded-lg bg-dark/50">
+                            <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-semibold">Alliance Joined</div>
+                                <div class="text-sm text-gray-400">You are now part of <span id="feedAlliance" class="text-primary">--</span></div>
+                            </div>
+                            <div class="text-sm text-gray-400">Just now</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="aboutPage" class="page">
+        <div class="min-h-screen pt-24 pb-12">
+            <div class="max-w-4xl mx-auto px-6">
+                <div class="stat-card neon-glow fade-in">
+                    <div class="text-center mb-12">
+                        <h1 class="font-orbitron font-bold text-4xl mb-4">
+                            <span class="gradient-text">About 5UNITY</span>
+                        </h1>
+                        <p class="text-xl text-gray-400">Server 844's Premier Community Platform</p>
+                    </div>
+                    <div class="space-y-8">
+                        <div>
+                            <h2 class="font-orbitron font-bold text-2xl mb-4 text-primary">Our Mission</h2>
+                            <p class="text-gray-300 leading-relaxed">
+                                5UNITY was created to bring together the five major alliances of Server 844 in Doomsday: Last Survivors. 
+                                We believe in unity, cooperation, and helping every survivor thrive in the post-apocalyptic world.
+                            </p>
+                        </div>
+                        <div>
+                            <h2 class="font-orbitron font-bold text-2xl mb-4 text-primary">The Five Alliances</h2>
+                            <div class="grid md:grid-cols-5 gap-4">
+                                <div class="alliance-card">
+                                    <h3 class="font-orbitron font-bold">ROTL</h3>
+                                    <p class="text-sm text-gray-400">Rise of The Lost</p>
+                                </div>
+                                <div class="alliance-card">
+                                    <h3 class="font-orbitron font-bold">COZY</h3>
+                                    <p class="text-sm text-gray-400">Cozy Survivors</p>
+                                </div>
+                                <div class="alliance-card">
+                                    <h3 class="font-orbitron font-bold">S_S</h3>
+                                    <p class="text-sm text-gray-400">Silent Shadows</p>
+                                </div>
+                                <div class="alliance-card">
+                                    <h3 class="font-orbitron font-bold">N4SD</h3>
+                                    <p class="text-sm text-gray-400">Never 4 Surrender</p>
+                                </div>
+                                <div class="alliance-card">
+                                    <h3 class="font-orbitron font-bold">VIP</h3>
+                                    <p class="text-sm text-gray-400">Very Important Players</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="font-orbitron font-bold text-2xl mb-4 text-primary">Rank System</h2>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-4">
+                                    <span class="rank-badge rank-r1 w-24 text-center">R1</span>
+                                    <span class="text-gray-300">Recruit - New members starting their journey</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="rank-badge rank-r2 w-24 text-center">R2</span>
+                                    <span class="text-gray-300">Member - Active participants in alliance activities</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="rank-badge rank-r3 w-24 text-center">R3</span>
+                                    <span class="text-gray-300">Veteran - Experienced survivors with proven track record</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="rank-badge rank-r4 w-24 text-center">R4</span>
+                                    <span class="text-gray-300">Elite - Top performers and alliance leaders</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="rank-badge rank-r5 w-24 text-center">R5</span>
+                                    <span class="text-gray-300">Leader - Alliance commanders and strategists</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alliances Page -->
+    <div id="alliancesPage" class="page">
+        <div class="min-h-screen pt-24 pb-12">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h1 class="font-orbitron font-bold text-4xl mb-4">
+                        <span class="gradient-text">Server 844 Alliances</span>
+                    </h1>
+                    <p class="text-xl text-gray-400">Choose your side. Fight together. Survive.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="stat-card fade-in">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-primary text-3xl">R</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl text-center mb-2">ROTL</h3>
+                        <p class="text-center text-gray-400 mb-4">Rise of The Lost</p>
+                        <div class="progress-bar mb-2">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                        <p class="text-sm text-gray-400 text-center">85% Full</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-secondary text-3xl">C</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl text-center mb-2">COZY</h3>
+                        <p class="text-center text-gray-400 mb-4">Cozy Survivors</p>
+                        <div class="progress-bar mb-2">
+                            <div class="progress-fill" style="width: 72%"></div>
+                        </div>
+                        <p class="text-sm text-gray-400 text-center">72% Full</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-accent text-3xl">S</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl text-center mb-2">S_S</h3>
+                        <p class="text-center text-gray-400 mb-4">Silent Shadows</p>
+                        <div class="progress-bar mb-2">
+                            <div class="progress-fill" style="width: 91%"></div>
+                        </div>
+                        <p class="text-sm text-gray-400 text-center">91% Full</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-primary text-3xl">N</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl text-center mb-2">N4SD</h3>
+                        <p class="text-center text-gray-400 mb-4">Never 4 Surrender</p>
+                        <div class="progress-bar mb-2">
+                            <div class="progress-fill" style="width: 68%"></div>
+                        </div>
+                        <p class="text-sm text-gray-400 text-center">68% Full</p>
+                    </div>
+                    <div class="stat-card fade-in">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full neon-border flex items-center justify-center">
+                            <span class="font-orbitron font-bold text-secondary text-3xl">V</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-2xl text-center mb-2">VIP</h3>
+                        <p class="text-center text-gray-400 mb-4">Very Important Players</p>
+                        <div class="progress-bar mb-2">
+                            <div class="progress-fill" style="width: 95%"></div>
+                        </div>
+                        <p class="text-sm text-gray-400 text-center">95% Full</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentUser = null;
+        let selectedAllianceValue = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            checkAuth();
+        });
+
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particle.style.opacity = Math.random() * 0.5 + 0.2;
+                container.appendChild(particle);
+            }
+        }
+
+        // Show page
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Show requested page
+            const pageMap = {
+                'home': 'homePage',
+                'login': 'loginPage',
+                'signup': 'signupPage',
+                'dashboard': 'dashboardPage',
+                'about': 'aboutPage',
+                'alliances': 'alliancesPage'
+            };
+
+            const pageId = pageMap[pageName];
+            if (pageId) {
+                document.getElementById(pageId).classList.add('active');
+            }
+
+            // Update nav active state
+            const navIndex = ['home', 'alliances', 'about'].indexOf(pageName);
+            if (navIndex !== -1) {
+                document.querySelectorAll('.nav-link')[navIndex]?.classList.add('active');
+            }
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Select alliance
+        function selectAlliance(alliance) {
+            // Remove selected from all
+            document.querySelectorAll('.alliance-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selected to clicked
+            document.getElementById('alliance-' + alliance).classList.add('selected');
+            selectedAllianceValue = alliance;
+            document.getElementById('selectedAlliance').value = alliance;
+        }
+
+        // Handle login
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Simulate login (in real app, this would be API call)
+            if (email && password) {
+                // Check if user exists in localStorage
+                const storedUser = localStorage.getItem('5unity_user');
+                
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                } else {
+                    // Create demo user
+                    currentUser = {
+                        username: email.split('@')[0],
+                        email: email,
+                        alliance: 'ROTL',
+                        gameId: 'DEMO123',
+                        rank: 'R2',
+                        joinedDate: new Date().toLocaleDateString()
+                    };
+                }
+
+                updateUserInterface();
+                showPage('dashboard');
+                showToast('Login successful! Welcome back, ' + currentUser.username, 'success');
+            } else {
+                showToast('Please enter valid credentials', 'error');
+            }
+        }
+
+        // Handle signup
+        function handleSignup(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const alliance = document.getElementById('selectedAlliance').value;
+            const gameId = document.getElementById('gameId').value;
+            const rank = document.getElementById('playerRank').value;
+            const termsAccepted = document.getElementById('termsCheck').checked;
+
+            // Validation
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match!', 'error');
+                return;
+            }
+
+            if (!alliance) {
+                showToast('Please select an alliance!', 'error');
+                return;
+            }
+
+            if (!termsAccepted) {
+                showToast('You must accept the terms of service', 'error');
+                return;
+            }
+
+            // Create user object
+            currentUser = {
+                username: username,
+                email: email,
+                alliance: alliance,
+                gameId: gameId,
+                rank: rank,
+                joinedDate: new Date().toLocaleDateString()
+            };
+
+            // Store in localStorage
+            localStorage.setItem('5unity_user', JSON.stringify(currentUser));
+
+            // Update UI and redirect
+            updateUserInterface();
+            showPage('dashboard');
+            showToast('Account created successfully! Welcome to 5UNITY', 'success');
+        }
+
+        // Update user interface
+        function updateUserInterface() {
+            if (currentUser) {
+                // Update nav
+                document.getElementById('authButtons').classList.add('hidden');
+                document.getElementById('userMenu').classList.remove('hidden');
+                document.getElementById('userMenu').classList.add('flex');
+                document.getElementById('userName').textContent = currentUser.username;
+                document.getElementById('userAlliance').textContent = currentUser.alliance;
+
+                // Update dashboard
+                document.getElementById('dashUserName').textContent = currentUser.username;
+                document.getElementById('dashAlliance').textContent = currentUser.alliance;
+                document.getElementById('dashRank').textContent = currentUser.rank;
+                document.getElementById('dashGameId').textContent = currentUser.gameId;
+
+                // Update rank badge class
+                const rankBadge = document.getElementById('dashRank');
+                rankBadge.className = 'rank-badge rank-' + currentUser.rank.toLowerCase();
+
+                // Update stats
+                document.getElementById('statRank').textContent = currentUser.rank;
+                document.getElementById('statMembers').textContent = Math.floor(Math.random() * 50) + 50;
+                document.getElementById('statDays').textContent = Math.floor(Math.random() * 30) + 1;
+
+                // Update info section
+                document.getElementById('infoAlliance').textContent = currentUser.alliance;
+                document.getElementById('infoRank').textContent = currentUser.rank;
+                document.getElementById('infoRank').className = 'rank-badge rank-' + currentUser.rank.toLowerCase();
+                document.getElementById('infoGameId').textContent = currentUser.gameId;
+                document.getElementById('infoJoined').textContent = currentUser.joinedDate;
+
+                // Update feed
+                document.getElementById('feedAlliance').textContent = currentUser.alliance;
+            }
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('5unity_user');
+            
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('userMenu').classList.add('hidden');
+            document.getElementById('userMenu').classList.remove('flex');
+
+            // Clear form fields
+            document.getElementById('loginForm').reset();
+            document.getElementById('signupForm').reset();
+            document.querySelectorAll('.alliance-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            selectedAllianceValue = '';
+
+            showPage('home');
+            showToast('Logged out successfully', 'success');
+        }
+
+        // Check authentication
+        function checkAuth() {
+            const storedUser = localStorage.getItem('5unity_user');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                updateUserInterface();
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastIcon.textContent = type === 'success' ? '✓' : '✕';
+            toastMessage.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Prevent dashboard access without login
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('a[href="#dashboard"]') || e.target.closest('button[data-page="dashboard"]')) {
+                if (!currentUser) {
+                    e.preventDefault();
+                    showToast('Please login to access the dashboard', 'error');
+                    showPage('login');
+                }
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                // Close any open modals
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
